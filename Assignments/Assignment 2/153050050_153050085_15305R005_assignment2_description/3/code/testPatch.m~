@@ -1,0 +1,136 @@
+clc
+clear all 
+close all
+
+in1 = load('../../2/data/barbara.mat');
+inp1 = in1.imageOrig;
+
+[inpRow inpCol] = size(inp1);
+in = in(1:2:inpRow, 1:2:inpCol);
+
+[inRow inCol] = size(in);
+
+out = zeros(inRow, inCol);
+
+w1=4;
+w2=12;
+parpool;
+
+for i=13:imgrow-13
+    for j=13:imgcol-13
+        
+        FpatchiMin = max(i-w1,1);
+        FpatchiMax = min(i+w1,imgrow);
+        FpatchjMin = max(j-w1,1);
+        FpatchjMax = min(j+w1,imgcol);
+        WindowiMin = max(i-w2,1);
+        WindowiMax = min(i+w2,imgrow);
+        WindowjMin = max(j-w2,1);
+        WindowjMax = min(j+w2,imgcol);
+        window=in(WindowiMin:WindowiMax,WindowjMin:WindowjMax);
+        [winrow wincol]=size(window);
+       
+        winrow=WindowiMin+winrow-1;
+        wincol=WindowjMin+wincol-1;
+         winrow
+        wincol
+        for k=WindowiMin:winrow
+        	for l=WindowjMin:wincol
+                   
+        		    VpatchiMin = max(k-w1,1);
+       				VpatchiMax = min(k+w1,winrow);
+        			VpatchjMin = max(l-w1,1);
+        			VpatchjMax = min(l+w1,wincol);
+                    VariablePatch=in(VpatchiMin:VpatchiMax,VpatchjMin:VpatchjMax);
+                    Fpatch=in(FpatchiMin:FpatchiMax,FpatchjMin:FpatchjMax);
+                    [Vrow Vcol]=size(VariablePatch);
+                    [Frow Fcol]=size(Fpatch);
+%                     if(Vrow*Vcol<=Frow*Fcol)
+
+        			if(VpatchiMin==WindowiMin && VpatchjMin==WindowjMin)
+        				NpatchiMin=FpatchiMin+((FpatchiMax-FpatchiMin)-(VpatchiMax-VpatchiMin));
+        				NpatchiMax=FpatchiMax;
+        				NpatchjMin=FpatchjMin+((FpatchjMax-FpatchjMin)-(VpatchjMax-VpatchjMin));
+        				NpatchjMax=FpatchjMax;
+        			elseif(VpatchiMax==WindowiMax && VpatchjMin==WindowjMin)
+        				NpatchiMin=FpatchiMin;
+        				NpatchiMax=FpatchiMin+(VpatchiMax-VpatchiMin);
+        				NpatchjMin=FpatchjMin+((FpatchjMax-FpatchjMin)-(VpatchjMax-VpatchjMin));
+        				NpatchjMax=FpatchjMax;
+        			elseif(VpatchiMax==WindowiMax && VpatchjMax==WindowjMax)
+        				NpatchiMin=FpatchiMin;
+        				NpatchiMax=FpatchiMin+(VpatchiMax-VpatchiMin);
+        				NpatchjMin=FpatchjMin;
+        				NpatchjMax=FpatchjMin+(VpatchjMax-VpatchjMin);
+        			elseif(VpatchiMin==WindowiMin && VpatchjMax==WindowjMax)
+        				NpatchiMin=FpatchiMin+((FpatchiMax-FpatchiMin)-(VpatchiMax-VpatchiMin));
+        				NpatchiMax=FpatchiMax;
+        				NpatchjMin=FpatchjMin;
+        				NpatchjMax=FpatchjMin+(VpatchjMax-VpatchjMin);
+        			elseif(VpatchiMin==WindowiMin)
+        				NpatchiMin=FpatchiMin+((FpatchiMax-FpatchiMin)-(VpatchiMax-VpatchiMin));
+        				NpatchiMax=FpatchiMax;
+        				NpatchjMin=FpatchjMin;
+        				NpatchjMax=FpatchjMax;
+        			elseif(VpatchjMin==WindowjMin)
+        				NpatchiMin=FpatchiMin;
+        				NpatchiMax=FpatchiMax;
+        				NpatchjMin=FpatchjMin+((FpatchjMax-FpatchjMin)-(VpatchjMax-VpatchjMin));
+        				NpatchjMax=FpatchjMax;
+        			elseif(VpatchiMax==WindowiMax)
+        				NpatchiMin=FpatchiMin;
+        				NpatchiMax=FpatchiMin+(VpatchiMax-VpatchiMin);
+        				NpatchjMin=FpatchjMin;
+        				NpatchjMax=FpatchjMax;
+        			elseif(VpatchjMax==WindowjMax)
+        				NpatchiMin=FpatchiMin;
+        				NpatchiMax=FpatchiMax;
+        				NpatchjMin=FpatchjMin;
+        				NpatchjMax=FpatchjMin+(VpatchjMax-VpatchjMin);
+        			else
+        				NpatchiMin=FpatchiMin;
+        				NpatchiMax=FpatchiMax;
+        				NpatchjMin=FpatchjMin;
+        				NpatchjMax=FpatchjMax;
+
+                       
+                    end
+                     NewPatch=in(NpatchiMin:NpatchiMax,NpatchjMin:NpatchjMax);
+                    
+
+        	
+            [patchrow patchcol]=size(VariablePatch);
+       	
+        	q=0;
+        	h=1;
+            e=zeros(patchrow,patchcol);
+        	for t=1:patchrow
+        		for r=1:patchcol
+        		q=q+1;		
+        		e(t,r)=exp((-1)*((norm(double(VariablePatch(t,r)-NewPatch(t,r)))^2)/h^2));
+        		end
+        	end
+        	esum=sum(sum(e));
+            w=zeros(patchrow,patchcol);
+        	wsum=0;
+        	for t=1:patchrow
+        		for r=1:patchcol
+        			w(t,r)=e(t,r)/esum;
+        			wsum=wsum+(w(t,r)*in(k,l));
+        		end
+        	end	
+        end
+     end
+     
+     out(i,j)=wsum;
+
+    end
+  end
+  figure;
+imshow(in);
+figure;
+imshow(out);
+
+
+
+

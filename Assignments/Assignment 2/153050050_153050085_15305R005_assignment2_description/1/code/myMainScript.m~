@@ -1,0 +1,29 @@
+%% MyMainScript
+
+tic;
+%% Your code here
+
+%%  Problem 1
+%   myUnsharpMasking
+
+in1 = imread('../../1/data/superMoonCrop.mat');
+in2 = imread('../../1/data/circles_concentric.png');
+
+[out1] = myUnsharpMasking(in1);
+figure;
+subplot(1,2,1); imagesc(in1); colormap(gray); axis tight; impixelinfo; 
+colorbar('southoutside'); daspect ([1 1 1]);
+subplot(1,2,2); imagesc(out1); colormap(gray); axis tight; impixelinfo; 
+colorbar('southoutside'); daspect ([1 1 1]); 
+
+[out2] = myUnsharpMasking(in2);
+figure;
+subplot(1,2,1); imagesc(in1); colormap(gray); axis tight; impixelinfo; 
+colorbar('southoutside'); daspect ([1 1 1]);
+subplot(1,2,2); imagesc(out2); colormap(gray); axis tight; impixelinfo; 
+colorbar('southoutside'); daspect ([1 1 1]); 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+toc;
